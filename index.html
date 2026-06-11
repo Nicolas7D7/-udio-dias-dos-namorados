@@ -7,10 +7,773 @@
       name="description"
       content="Uma carta em áudio em formato de mini álbum para o Dia dos Namorados."
     />
-    <!-- Troque o título da aba do navegador aqui, se quiser. -->
     <title>Dia dos Namorados | Nicolas para Phamyla</title>
-    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      :root {
+        --navy-950: #07111f;
+        --navy-900: #0b1728;
+        --navy-800: #12243a;
+        --off-white: #fbf7ef;
+        --soft-white: #fffdf8;
+        --gold: #d9b56f;
+        --gold-light: #f1d99c;
+        --rose: #d8a1a8;
+        --muted: #c5c1b8;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+        --radius-lg: 28px;
+        --radius-md: 18px;
+        --transition: 240ms ease;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--navy-950);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--off-white);
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+          Arial, sans-serif;
+        background:
+          radial-gradient(
+            circle at 12% 18%,
+            rgba(216, 161, 168, 0.2),
+            transparent 28rem
+          ),
+          radial-gradient(
+            circle at 84% 4%,
+            rgba(217, 181, 111, 0.18),
+            transparent 26rem
+          ),
+          linear-gradient(145deg, #07111f 0%, #0d1a2e 45%, #142946 100%);
+        overflow-x: hidden;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+      }
+
+      .intro-screen,
+      .album-screen {
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      .intro-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+        transition:
+          opacity 650ms ease,
+          transform 650ms ease,
+          visibility 650ms ease;
+      }
+
+      .intro-background {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .intro-background::before,
+      .intro-background::after {
+        position: absolute;
+        content: "";
+        border: 1px solid rgba(217, 181, 111, 0.2);
+        border-radius: 999px;
+      }
+
+      .intro-background::before {
+        width: 21rem;
+        height: 21rem;
+        top: 9%;
+        right: 8%;
+        box-shadow: inset 0 0 60px rgba(217, 181, 111, 0.08);
+      }
+
+      .intro-background::after {
+        width: 14rem;
+        height: 14rem;
+        bottom: 10%;
+        left: 8%;
+        box-shadow: inset 0 0 50px rgba(216, 161, 168, 0.1);
+      }
+
+      .intro-content {
+        position: relative;
+        width: min(100%, 42rem);
+        padding: 4rem 2rem;
+        text-align: center;
+      }
+
+      .intro-kicker,
+      .album-label {
+        margin: 0 0 0.9rem;
+        color: var(--gold-light);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .intro-content h1 {
+        margin: 0;
+        color: var(--soft-white);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 4.4rem;
+        font-weight: 500;
+      }
+
+      .intro-content p:not(.intro-kicker) {
+        max-width: 33rem;
+        margin: 1.25rem auto 0;
+        color: rgba(251, 247, 239, 0.78);
+        font-size: 1.16rem;
+        line-height: 1.75;
+      }
+
+      .primary-action {
+        min-height: 3.4rem;
+        margin-top: 2.4rem;
+        padding: 0 1.7rem;
+        border-radius: 999px;
+        color: #07111f;
+        background: linear-gradient(135deg, var(--gold-light), var(--gold));
+        box-shadow: 0 16px 38px rgba(217, 181, 111, 0.22);
+        cursor: pointer;
+        font-weight: 800;
+        transition:
+          transform var(--transition),
+          box-shadow var(--transition),
+          filter var(--transition);
+      }
+
+      .primary-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 46px rgba(217, 181, 111, 0.28);
+        filter: brightness(1.03);
+      }
+
+      .primary-action:focus-visible,
+      .control-button:focus-visible,
+      .track-button:focus-visible,
+      .progress-bar:focus-visible {
+        outline: 3px solid rgba(241, 217, 156, 0.55);
+        outline-offset: 4px;
+      }
+
+      .album-screen {
+        display: grid;
+        place-items: center;
+        padding: 3rem 1.2rem;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(1rem);
+        transition:
+          opacity 700ms ease,
+          transform 700ms ease;
+      }
+
+      body.is-ready .intro-screen {
+        opacity: 0;
+        transform: translateY(-0.8rem);
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      body.is-ready .album-screen {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .album-shell {
+        width: min(100%, 68rem);
+        display: grid;
+        grid-template-columns: minmax(17rem, 23rem) minmax(0, 1fr);
+        gap: 2.2rem;
+        align-items: center;
+        padding: 1.5rem;
+        border: 1px solid rgba(251, 247, 239, 0.12);
+        border-radius: var(--radius-lg);
+        background:
+          linear-gradient(145deg, rgba(18, 36, 58, 0.92), rgba(7, 17, 31, 0.95)),
+          rgba(11, 23, 40, 0.92);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .album-cover {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 24px;
+        padding: 0.75rem;
+        background:
+          linear-gradient(145deg, rgba(241, 217, 156, 0.46), rgba(216, 161, 168, 0.18)),
+          rgba(251, 247, 239, 0.05);
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.26);
+      }
+
+      .cover-frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid rgba(241, 217, 156, 0.26);
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at 50% 48%, rgba(217, 181, 111, 0.2), transparent 7rem),
+          radial-gradient(circle at 18% 16%, rgba(216, 161, 168, 0.18), transparent 7rem),
+          linear-gradient(145deg, #091424 0%, #10213a 58%, #081220 100%);
+      }
+
+      .cover-frame::before,
+      .cover-frame::after {
+        position: absolute;
+        content: "";
+        inset: 1.2rem;
+        border: 1px solid rgba(241, 217, 156, 0.18);
+        border-radius: 16px;
+      }
+
+      .cover-frame::after {
+        inset: auto;
+        width: 10.4rem;
+        height: 10.4rem;
+        border-radius: 999px;
+        border-color: rgba(241, 217, 156, 0.18);
+      }
+
+      .cover-initials {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        width: 8.4rem;
+        height: 8.4rem;
+        border: 1px solid rgba(241, 217, 156, 0.34);
+        border-radius: 999px;
+        color: var(--gold-light);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 2.1rem;
+        background: rgba(7, 17, 31, 0.32);
+        box-shadow: 0 0 36px rgba(217, 181, 111, 0.12);
+      }
+
+      .cover-frame p {
+        position: absolute;
+        bottom: 2.1rem;
+        z-index: 2;
+        margin: 0;
+        color: rgba(251, 247, 239, 0.66);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .cover-ring {
+        position: absolute;
+        border: 1px solid rgba(241, 217, 156, 0.16);
+        border-radius: 999px;
+      }
+
+      .ring-one {
+        width: 72%;
+        height: 72%;
+        animation: slowSpin 18s linear infinite;
+      }
+
+      .ring-two {
+        width: 52%;
+        height: 52%;
+        border-color: rgba(216, 161, 168, 0.18);
+        animation: slowSpin 24s linear infinite reverse;
+      }
+
+      .cover-star {
+        position: absolute;
+        width: 0.42rem;
+        height: 0.42rem;
+        border-radius: 999px;
+        background: var(--gold-light);
+        box-shadow: 0 0 16px rgba(241, 217, 156, 0.82);
+      }
+
+      .star-one {
+        top: 22%;
+        left: 28%;
+      }
+
+      .star-two {
+        top: 34%;
+        right: 24%;
+      }
+
+      .star-three {
+        right: 34%;
+        bottom: 24%;
+      }
+
+      .cover-heart {
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        background: rgba(216, 161, 168, 0.75);
+        transform: rotate(45deg);
+        box-shadow: 0 0 18px rgba(216, 161, 168, 0.2);
+      }
+
+      .cover-heart::before,
+      .cover-heart::after,
+      .heart-icon::before,
+      .heart-icon::after {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: inherit;
+      }
+
+      .cover-heart::before,
+      .heart-icon::before {
+        left: -50%;
+      }
+
+      .cover-heart::after,
+      .heart-icon::after {
+        top: -50%;
+      }
+
+      .heart-left {
+        bottom: 18%;
+        left: 22%;
+      }
+
+      .heart-right {
+        top: 18%;
+        right: 22%;
+        width: 0.72rem;
+        height: 0.72rem;
+        opacity: 0.75;
+      }
+
+      .album-info {
+        min-width: 0;
+        padding: 1.1rem 1rem 1rem 0;
+      }
+
+      .album-info h2 {
+        margin: 0;
+        color: var(--soft-white);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 3.2rem;
+        font-weight: 500;
+      }
+
+      .album-artist {
+        margin: 0.65rem 0 0;
+        color: var(--gold-light);
+        font-weight: 800;
+      }
+
+      .album-subtitle {
+        max-width: 37rem;
+        margin: 0.65rem 0 0;
+        color: rgba(251, 247, 239, 0.72);
+        line-height: 1.7;
+      }
+
+      .now-playing {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 3.6rem;
+        margin: 1.5rem 0 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(241, 217, 156, 0.18);
+        border-radius: var(--radius-md);
+        background: rgba(251, 247, 239, 0.055);
+      }
+
+      .now-playing span {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .now-playing strong {
+        min-width: 0;
+        color: var(--soft-white);
+        text-align: right;
+      }
+
+      .track-list {
+        display: grid;
+        gap: 0.55rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: tracks;
+      }
+
+      .track-item {
+        counter-increment: tracks;
+      }
+
+      .track-button {
+        width: 100%;
+        min-height: 3.55rem;
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+        gap: 0.8rem;
+        align-items: center;
+        padding: 0.75rem 0.95rem;
+        border: 1px solid rgba(251, 247, 239, 0.08);
+        border-radius: 16px;
+        color: var(--off-white);
+        background: rgba(251, 247, 239, 0.045);
+        cursor: pointer;
+        text-align: left;
+        transition:
+          background var(--transition),
+          border-color var(--transition),
+          transform var(--transition);
+      }
+
+      .track-button::before {
+        content: counter(tracks, decimal-leading-zero);
+        color: rgba(241, 217, 156, 0.86);
+        font-size: 0.78rem;
+        font-weight: 900;
+      }
+
+      .track-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(241, 217, 156, 0.26);
+        background: rgba(251, 247, 239, 0.075);
+      }
+
+      .track-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 750;
+      }
+
+      .track-status {
+        width: 1.7rem;
+        height: 1.7rem;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        color: #07111f;
+        background: transparent;
+        font-size: 0.72rem;
+      }
+
+      .track-button.is-active {
+        border-color: rgba(241, 217, 156, 0.46);
+        background: linear-gradient(
+          135deg,
+          rgba(241, 217, 156, 0.15),
+          rgba(216, 161, 168, 0.08)
+        );
+      }
+
+      .track-button.is-active .track-status {
+        background: var(--gold-light);
+      }
+
+      .track-button.is-active .track-status::before {
+        content: "";
+        width: 0.52rem;
+        height: 0.52rem;
+        border-radius: 999px;
+        background: var(--navy-900);
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+
+      .player-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(251, 247, 239, 0.11);
+        border-radius: var(--radius-md);
+        background: rgba(7, 17, 31, 0.42);
+      }
+
+      .progress-area {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 0.4rem;
+        margin: 0;
+        border-radius: 999px;
+        accent-color: var(--gold-light);
+        cursor: pointer;
+      }
+
+      .time-row {
+        display: flex;
+        justify-content: space-between;
+        color: rgba(251, 247, 239, 0.65);
+        font-size: 0.82rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 0.85rem;
+      }
+
+      .control-button {
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        cursor: pointer;
+        transition:
+          transform var(--transition),
+          box-shadow var(--transition),
+          background var(--transition);
+      }
+
+      .control-button:hover {
+        transform: translateY(-2px);
+      }
+
+      .side-control {
+        width: 3.1rem;
+        height: 3.1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+        color: var(--gold-light);
+        background: rgba(251, 247, 239, 0.075);
+        border: 1px solid rgba(241, 217, 156, 0.2);
+      }
+
+      .side-control:hover {
+        background: rgba(241, 217, 156, 0.12);
+      }
+
+      .heart-icon {
+        position: relative;
+        width: 0.64rem;
+        height: 0.64rem;
+        background: var(--rose);
+        transform: rotate(45deg);
+      }
+
+      .play-control {
+        width: 4.45rem;
+        height: 4.45rem;
+        color: #07111f;
+        background: linear-gradient(135deg, var(--gold-light), var(--gold));
+        box-shadow: 0 16px 36px rgba(217, 181, 111, 0.2);
+      }
+
+      .play-symbol {
+        display: block;
+      }
+
+      .play-symbol.is-play {
+        width: 0;
+        height: 0;
+        margin-left: 0.28rem;
+        border-top: 0.72rem solid transparent;
+        border-bottom: 0.72rem solid transparent;
+        border-left: 1rem solid #07111f;
+      }
+
+      .play-symbol.is-pause {
+        position: relative;
+        width: 1rem;
+        height: 1.35rem;
+      }
+
+      .play-symbol.is-pause::before,
+      .play-symbol.is-pause::after {
+        position: absolute;
+        top: 0;
+        content: "";
+        width: 0.34rem;
+        height: 100%;
+        border-radius: 999px;
+        background: #07111f;
+      }
+
+      .play-symbol.is-pause::before {
+        left: 0;
+      }
+
+      .play-symbol.is-pause::after {
+        right: 0;
+      }
+
+      .play-control.is-playing {
+        background: linear-gradient(135deg, #fff3c8, #d9b56f);
+      }
+
+      .player-message {
+        min-height: 1.25rem;
+        margin: 0.65rem 0 0;
+        color: rgba(251, 247, 239, 0.58);
+        font-size: 0.82rem;
+        text-align: center;
+      }
+
+      @keyframes slowSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(0.85);
+          opacity: 0.75;
+        }
+
+        50% {
+          transform: scale(1.15);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 820px) {
+        .intro-screen {
+          padding: 1.2rem;
+        }
+
+        .intro-content {
+          padding: 3rem 0.3rem;
+        }
+
+        .intro-content h1 {
+          font-size: 3rem;
+        }
+
+        .intro-content p:not(.intro-kicker) {
+          font-size: 1rem;
+        }
+
+        .album-screen {
+          padding: 1rem;
+        }
+
+        .album-shell {
+          grid-template-columns: 1fr;
+          gap: 1.15rem;
+          padding: 1rem;
+          border-radius: 22px;
+        }
+
+        .album-cover {
+          width: min(100%, 22rem);
+          margin: 0 auto;
+        }
+
+        .album-info {
+          padding: 0;
+        }
+
+        .album-info h2 {
+          font-size: 2.35rem;
+        }
+
+        .now-playing {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 0.35rem;
+        }
+
+        .now-playing strong {
+          text-align: left;
+        }
+
+        .track-button {
+          grid-template-columns: 2rem minmax(0, 1fr) 1.7rem;
+        }
+      }
+
+      @media (max-width: 430px) {
+        .intro-content h1 {
+          font-size: 2.6rem;
+        }
+
+        .primary-action {
+          width: 100%;
+          padding: 0 1rem;
+        }
+
+        .album-info h2 {
+          font-size: 2.05rem;
+        }
+
+        .album-subtitle {
+          font-size: 0.95rem;
+        }
+
+        .player-panel {
+          padding: 0.85rem;
+        }
+
+        .controls {
+          gap: 0.75rem;
+        }
+
+        .side-control {
+          width: 2.9rem;
+          height: 2.9rem;
+        }
+
+        .play-control {
+          width: 4rem;
+          height: 4rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 1ms !important;
+        }
+      }
+    </style>
   </head>
+
   <body>
     <section class="intro-screen" id="introScreen" aria-labelledby="introTitle">
       <div class="intro-background" aria-hidden="true"></div>
@@ -42,7 +805,6 @@
         </div>
 
         <div class="album-info">
-          <!-- Os textos do álbum também podem ser trocados no arquivo script.js. -->
           <p class="album-label">Mini álbum particular</p>
           <h2 id="albumTitle">Dia dos Namorados</h2>
           <p class="album-artist" id="albumArtist">Nicolas para Phamyla</p>
@@ -117,6 +879,255 @@
       </section>
     </main>
 
-    <script src="script.js"></script>
+    <script>
+      const albumConfig = {
+        // TROQUE AQUI o nome do álbum.
+        title: "Dia dos Namorados",
+
+        // TROQUE AQUI a assinatura.
+        artist: "Nicolas para Phamyla",
+
+        // TROQUE AQUI o subtítulo.
+        subtitle: "Uma carta que eu preferi te entregar com a minha voz.",
+
+        // TROQUE AQUI os nomes das faixas e o caminho dos arquivos de áudio.
+        tracks: [
+          {
+            title: "Antes de tudo",
+            src: "faixas/faixa-01.mp3",
+          },
+          {
+            title: "O jeito que eu te vejo",
+            src: "faixas/faixa-02.mp3",
+          },
+          {
+            title: "Nós dois",
+            src: "faixas/faixa-03.mp3",
+          },
+          {
+            title: "O que eu admiro em você",
+            src: "faixas/faixa-04.mp3",
+          },
+          {
+            title: "O futuro que eu quero com você",
+            src: "faixas/faixa-05.mp3",
+          },
+        ],
+      };
+
+      const introScreen = document.querySelector("#introScreen");
+      const albumScreen = document.querySelector("#albumScreen");
+      const startButton = document.querySelector("#startButton");
+      const albumTitle = document.querySelector("#albumTitle");
+      const albumArtist = document.querySelector("#albumArtist");
+      const albumSubtitle = document.querySelector("#albumSubtitle");
+      const currentTrackTitle = document.querySelector("#currentTrackTitle");
+      const trackList = document.querySelector("#trackList");
+      const audioPlayer = document.querySelector("#audioPlayer");
+      const progressBar = document.querySelector("#progressBar");
+      const currentTime = document.querySelector("#currentTime");
+      const durationTime = document.querySelector("#durationTime");
+      const prevButton = document.querySelector("#prevButton");
+      const playButton = document.querySelector("#playButton");
+      const playIcon = document.querySelector("#playIcon");
+      const nextButton = document.querySelector("#nextButton");
+      const playerMessage = document.querySelector("#playerMessage");
+
+      let currentTrackIndex = 0;
+      let isSeeking = false;
+      let hasTriedToPlay = false;
+
+      function formatTime(totalSeconds) {
+        if (!Number.isFinite(totalSeconds)) {
+          return "0:00";
+        }
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = Math.floor(totalSeconds % 60)
+          .toString()
+          .padStart(2, "0");
+
+        return `${minutes}:${seconds}`;
+      }
+
+      function setMessage(message = "") {
+        playerMessage.textContent = message;
+      }
+
+      function renderAlbumInfo() {
+        albumTitle.textContent = albumConfig.title;
+        albumArtist.textContent = albumConfig.artist;
+        albumSubtitle.textContent = albumConfig.subtitle;
+        currentTrackTitle.textContent = albumConfig.tracks[currentTrackIndex].title;
+      }
+
+      function renderTracks() {
+        trackList.innerHTML = "";
+
+        albumConfig.tracks.forEach((track, index) => {
+          const item = document.createElement("li");
+          const button = document.createElement("button");
+          const title = document.createElement("span");
+          const status = document.createElement("span");
+
+          item.className = "track-item";
+          button.className = "track-button";
+          button.type = "button";
+          button.dataset.trackIndex = index;
+          button.setAttribute(
+            "aria-label",
+            `Tocar faixa ${index + 1}: ${track.title}`
+          );
+
+          title.className = "track-title";
+          title.textContent = track.title;
+
+          status.className = "track-status";
+          status.setAttribute("aria-hidden", "true");
+
+          button.append(title, status);
+          item.append(button);
+          trackList.append(item);
+        });
+      }
+
+      function updateActiveTrack() {
+        const trackButtons = trackList.querySelectorAll(".track-button");
+
+        trackButtons.forEach((button, index) => {
+          const isActive = index === currentTrackIndex;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-current", isActive ? "true" : "false");
+        });
+
+        currentTrackTitle.textContent =
+          albumConfig.tracks[currentTrackIndex].title;
+      }
+
+      function loadTrack(index, shouldPlay = false) {
+        currentTrackIndex =
+          (index + albumConfig.tracks.length) % albumConfig.tracks.length;
+
+        const track = albumConfig.tracks[currentTrackIndex];
+        audioPlayer.src = track.src;
+        audioPlayer.load();
+        progressBar.value = 0;
+        currentTime.textContent = "0:00";
+        durationTime.textContent = "0:00";
+        setMessage("");
+        updateActiveTrack();
+
+        if (shouldPlay) {
+          playCurrentTrack();
+        }
+      }
+
+      function updatePlayState(isPlaying) {
+        playButton.classList.toggle("is-playing", isPlaying);
+        playButton.setAttribute("aria-label", isPlaying ? "Pausar" : "Tocar");
+        playIcon.classList.toggle("is-pause", isPlaying);
+        playIcon.classList.toggle("is-play", !isPlaying);
+      }
+
+      function playCurrentTrack() {
+        hasTriedToPlay = true;
+        const playAttempt = audioPlayer.play();
+
+        if (playAttempt !== undefined) {
+          playAttempt
+            .then(() => {
+              updatePlayState(true);
+              setMessage("");
+            })
+            .catch(() => {
+              updatePlayState(false);
+              setMessage(
+                "Quando os áudios finais estiverem na pasta faixas, eles tocam aqui."
+              );
+            });
+        }
+      }
+
+      function togglePlayback() {
+        if (audioPlayer.paused) {
+          playCurrentTrack();
+          return;
+        }
+
+        audioPlayer.pause();
+        updatePlayState(false);
+      }
+
+      function goToTrack(offset) {
+        loadTrack(currentTrackIndex + offset, true);
+      }
+
+      function updateProgress() {
+        if (isSeeking || !Number.isFinite(audioPlayer.duration)) {
+          return;
+        }
+
+        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        progressBar.value = progress || 0;
+        currentTime.textContent = formatTime(audioPlayer.currentTime);
+      }
+
+      startButton.addEventListener("click", () => {
+        document.body.classList.add("is-ready");
+        introScreen.setAttribute("aria-hidden", "true");
+        albumScreen.setAttribute("aria-hidden", "false");
+        setTimeout(() => playButton.focus(), 700);
+      });
+
+      trackList.addEventListener("click", (event) => {
+        const trackButton = event.target.closest(".track-button");
+
+        if (!trackButton) {
+          return;
+        }
+
+        loadTrack(Number(trackButton.dataset.trackIndex), true);
+      });
+
+      playButton.addEventListener("click", togglePlayback);
+      prevButton.addEventListener("click", () => goToTrack(-1));
+      nextButton.addEventListener("click", () => goToTrack(1));
+
+      progressBar.addEventListener("input", () => {
+        isSeeking = true;
+        const previewTime =
+          (Number(progressBar.value) / 100) * audioPlayer.duration;
+        currentTime.textContent = formatTime(previewTime);
+      });
+
+      progressBar.addEventListener("change", () => {
+        if (Number.isFinite(audioPlayer.duration)) {
+          audioPlayer.currentTime =
+            (Number(progressBar.value) / 100) * audioPlayer.duration;
+        }
+
+        isSeeking = false;
+      });
+
+      audioPlayer.addEventListener("loadedmetadata", () => {
+        durationTime.textContent = formatTime(audioPlayer.duration);
+      });
+
+      audioPlayer.addEventListener("timeupdate", updateProgress);
+      audioPlayer.addEventListener("play", () => updatePlayState(true));
+      audioPlayer.addEventListener("pause", () => updatePlayState(false));
+      audioPlayer.addEventListener("ended", () => goToTrack(1));
+      audioPlayer.addEventListener("error", () => {
+        updatePlayState(false);
+
+        if (hasTriedToPlay) {
+          setMessage("Arquivo de áudio não encontrado ou ainda vazio.");
+        }
+      });
+
+      renderAlbumInfo();
+      renderTracks();
+      loadTrack(0, false);
+    </script>
   </body>
 </html>
