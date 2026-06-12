@@ -892,7 +892,7 @@
               <strong>N + P</strong>
               <span>12.06</span>
             </div>
-            <!-- TROQUE AQUI a imagem de capa: substitua o arquivo em imagens/capa.jpg ou altere o caminho em albumConfig.coverImage. -->
+            <!-- A imagem atual usa track.cover. Troque os caminhos no array tracks, dentro do JavaScript. -->
             <img id="coverImage" alt="Capa do mini álbum Dia dos Namorados" />
           </figure>
 
@@ -1004,40 +1004,45 @@
         // TROQUE AQUI a assinatura.
         signature: "Nicolas para Phamyla",
 
-        // TROQUE AQUI a imagem de capa.
-        coverImage: "imagens/capa.jpg",
-
         // Ao terminar a última faixa:
         // false = para na última faixa; true = volta para a primeira.
         loopAfterLastTrack: false,
 
-        // TROQUE AQUI os títulos, descrições e caminhos dos arquivos de áudio.
+        // TROQUE AQUI os títulos, descrições, capas e caminhos dos arquivos de áudio.
         tracks: [
           {
             title: "Antes de tudo",
             description:
               "O começo dessa surpresa e o motivo de eu ter escolhido te entregar minha voz.",
+            cover: "imagens/capa-01.jpg",
             src: "faixas/faixa-01.mp3",
           },
           {
-            title: "O jeito que eu te vejo",
-            description: "Um pouco sobre tudo que eu admiro em você.",
+            title: "Aos meus olhos",
+            description:
+              "A forma como eu te vejo e toda a beleza que existe em você.",
+            cover: "imagens/capa-02.jpg",
             src: "faixas/faixa-02.mp3",
           },
           {
-            title: "Nós dois",
-            description: "Algumas lembranças nossas que moram no meu coração.",
+            title: "Memórias",
+            description:
+              "As lembranças que construímos juntos e que moram no meu coração.",
+            cover: "imagens/capa-03.jpg",
             src: "faixas/faixa-03.mp3",
           },
           {
-            title: "O que eu admiro em você",
+            title: "Admiro você",
             description:
-              "Sobre sua força, seu carinho e o orgulho que eu tenho de você.",
+              "A sua força, sua dedicação e tudo o que em você me inspira.",
+            cover: "imagens/capa-04.jpg",
             src: "faixas/faixa-04.mp3",
           },
           {
-            title: "O futuro que eu quero com você",
-            description: "Sobre o que eu sonho viver ao seu lado.",
+            title: "Nosso futuro",
+            description:
+              "Os sonhos que eu tenho com você e tudo o que desejo viver ao seu lado.",
+            cover: "imagens/capa-05.jpg",
             src: "faixas/faixa-05.mp3",
           },
         ],
@@ -1093,7 +1098,6 @@
         albumTitle.textContent = albumConfig.albumTitle;
         sheetTitle.textContent = albumConfig.albumTitle;
         albumSignature.textContent = albumConfig.signature;
-        coverImage.src = albumConfig.coverImage;
       }
 
       function renderTrackSheet() {
@@ -1137,6 +1141,15 @@
 
         trackTitle.textContent = track.title;
         trackDescription.textContent = track.description;
+        coverImage.alt = `Capa da faixa ${track.title}`;
+
+        if (coverImage.getAttribute("src") !== track.cover) {
+          coverCard.classList.remove("has-image");
+          coverImage.src = track.cover;
+        } else if (coverImage.complete && coverImage.naturalWidth > 0) {
+          coverCard.classList.add("has-image");
+        }
+
         trackCount.textContent = `${currentTrackIndex + 1}/${albumConfig.tracks.length}`;
 
         trackList.querySelectorAll(".track-option").forEach((button, index) => {
